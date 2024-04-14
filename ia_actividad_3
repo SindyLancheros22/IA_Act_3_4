@@ -1,0 +1,40 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+
+# Función para limpiar números con comas
+def clean_number(num):
+    if isinstance(num, str):
+        return float(num.replace(',', ''))
+    return num
+
+# Cargar los datos desde el archivo Excel
+file_path = r'C:\Users\danyg\Downloads\bd_masivo.xlsx'
+data = pd.read_excel(file_path)
+
+# Preprocesamiento de datos
+# Limpiar la columna 'Pasajeros/dia' para eliminar las comas y luego convertirla a tipo float
+data['Pasajeros/dia'] = data['Pasajeros/dia'].apply(clean_number)
+
+# Limpiar la columna 'Pasajeros dia tipico laboral' para eliminar las comas y luego convertirla a tipo float
+data['Pasajeros dia tipico laboral'] = data['Pasajeros dia tipico laboral'].apply(clean_number)
+
+# Seleccionar características (features) y la variable objetivo (target)
+X = data[['Pasajeros/dia', 'Variacion Transmilenio', 'Pasajeros dia tipico laboral', 
+          'Pasajeros dia sabado', 'Pasajeros dia festivo', 'DiaSemana']]
+y = data['Pasajeros/dia']
+
+# Dividir los datos en conjunto de entrenamiento y conjunto de prueba
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Inicializar y entrenar el modelo de regresión lineal
+model = LinearRegression()  
+model.fit(X_train, y_train)
+
+# Predecir con el conjunto de prueba
+y_pred = model.predict(X_test)
+
+# Calcular el error cuadrático medio (MSE)
+mse = mean_squared_error(y_test, y_pred)
+print("Error Cuadrático Medio (MSE):", mse)
